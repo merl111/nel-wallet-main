@@ -56,6 +56,18 @@
                 </div>
                 <div class="edit-input">
                     <div class="input-msg">
+                        {{$t('myneoname.owner')}}:
+                    </div>
+                    <div class="input-box">
+                        <input type="text" v-model="ownerAddress" @input="verifyMapping" class="" autocomplete="off">
+                        <button v-if="" class="btn btn-nel btn-big" @click="setowner">{{$t('btn.setOwner')}}</button>
+                        <!--button  v-if=""  class="btn btn-nel btn-big btn-disable" disabled>{{$t('btn.settingOwner')}}</button-->
+                        <!--button  v-if="renewalWatting" class="btn btn-nel btn-big btn-disable" disabled>{{$t('btn.setOwner')}}</button-->
+                        <!-- <spinner-wrap v-if="renewalWatting"  style="margin-left:20px"></spinner-wrap> -->
+                    </div>
+                </div>
+                <div class="edit-input">
+                    <div class="input-msg">
                         {{$t('myneoname.time')}}:
                     </div>
                     <div class="input-box">

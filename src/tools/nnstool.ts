@@ -231,6 +231,36 @@ export class NNSTool
 
     }
 
+    static async setOwner(domain: string, newOwner: string): Promise<Result>
+    {
+
+        let hash = ThinNeo.Helper.GetPublicKeyScriptHash_FromAddress(LoginInfo.getCurrentAddress());
+        let hashstr = hash.reverse().toHexString();
+        let ownerHash = ThinNeo.Helper.GetPublicKeyScriptHash_FromAddress(newOwner);
+        let ownerHashStr = ownerHash.reverse().toHexString();
+        let arr = domain.split(".");
+        let nnshash: Neo.Uint256 = tools.nnstool.nameHashArray(arr);
+        var scriptaddress = Consts.baseContract;
+
+        var sb = new ThinNeo.ScriptBuilder();
+        let random_uint8 = Neo.Cryptography.RandomNumberGenerator.getRandomValues<Uint8Array>(new Uint8Array(32));
+        let random_int = Neo.BigInteger.fromUint8Array(random_uint8);
+
+        sb.EmitPushNumber(random_int);
+        sb.Emit(ThinNeo.OpCode.DROP);
+        sb.EmitParamJson([
+            "(hex160)" + hashstr,
+            "(hex256)" + nnshash.toString(),
+            "(hex160)" + ownerHashStr ]);
+        sb.EmitPushString("owner_SetOwner");
+        sb.EmitAppCall(scriptaddress);
+        var data = sb.ToArray();
+
+        let res = await tools.contract.contractInvokeTrans_attributes(data);
+        return res;
+        //return null;
+    }
+
     /**
      * 生成解析器
      * @param protocol 

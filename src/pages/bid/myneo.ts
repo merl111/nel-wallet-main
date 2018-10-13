@@ -15,11 +15,14 @@ export default class MyNeo extends Vue
     domainInfo: any;
     set_contract: string;
     resolverAddress: string;
+    ownerAddress: string;
     mappingistrue: boolean;
     mappingState: number;
     resolverState: number;
+    ownerState: number;
     domainEdit: sessionStoreTool;
     renewalWatting: boolean;
+    ownerTransfer: boolean;
     currentdomain: string;
 
     constructor()
@@ -31,9 +34,12 @@ export default class MyNeo extends Vue
         this.set_contract = "0x6e2aea28af9c5febea0774759b1b76398e3167f1";
         this.domainEdit = new sessionStoreTool("domain-edit");
         this.renewalWatting = false;
+        this.ownerTransfer = false;
         this.resolverAddress = "";
+        this.ownerAddress = "";
         this.mappingState = 0;
         this.resolverState = 0;
+        this.ownerState = 0;
         this.mappingistrue = false;
         this.currentdomain = "";
     }
@@ -43,9 +49,10 @@ export default class MyNeo extends Vue
         tools.nnstool.initRootDomain("neo");
         this.getAllNeoName(this.currentAddress);
         //初始化 任务管理器的执行机制
-        TaskFunction.domainResovle = this.resolverTask;
-        TaskFunction.domainMapping = this.mappingTask;
-        TaskFunction.domainRenewal = this.renewalTask;
+        TaskFunction.domainResovle  = this.resolverTask;
+        TaskFunction.domainMapping  = this.mappingTask;
+        TaskFunction.domainRenewal  = this.renewalTask;
+        TaskFunction.domainTransfer = this.domainTransferTask;
     }
 
     verifyMapping()
@@ -129,6 +136,7 @@ export default class MyNeo extends Vue
         this.mappingistrue = tools.neotool.verifyAddress(this.resolverAddress);
         this.mappingState = this.domainInfo.resolverAddress ? 1 : 0;
         this.resolverState = this.domainInfo.resolver ? 1 : 0;
+        this.ownerState = this.domainInfo.owner ? 1 : 0;
         this.renewalWatting = false;
         this.isShowEdit = !this.isShowEdit;
         this.currentdomain = item.domain;
@@ -149,6 +157,43 @@ export default class MyNeo extends Vue
             {
                 this.renewalWatting = true;
             }
+            if (domain[ 'owner' ] && domain[ 'owner' ] == 'watting')
+            {
+                this.renewalWatting = true;
+            }
+        }
+    }
+
+    async setowner()
+    {
+        let oldstate = this.ownerState;
+        try
+        {
+            // reset address mapping before transferring it to a new owner
+            if (this.resolverAddress != "" && this.mappingState != 0) {
+                let reset = await this.resetmappingData()
+                let mapping = await this.mappingData();
+            }
+
+            this.ownerState = 2;
+
+            let res = await tools.nnstool.setOwner(this.domainInfo[ "domain" ], this.ownerAddress);
+            if (!res.err)
+            //if (true)
+            {
+                let txid = res.info;
+                //let txid = "sdklfajklsadfjklasdjfkklsadfj";
+                TaskManager.addTask(
+                    new Task(ConfirmType.contract, txid, { domain: this.domainInfo[ 'domain' ], contract: this.set_contract }),
+                    TaskType.domainTransfer);
+                this.domainEdit.put(this.domainInfo.domain, "watting", "domain_transfer");
+            } else {
+            }
+
+        } catch (error)
+        {
+            console.log("ERROR!!");
+            this.ownerState = oldstate;
         }
     }
 
@@ -237,6 +282,16 @@ export default class MyNeo extends Vue
         }
         this.getAllNeoName(this.currentAddress);
     }
+
+    domainTransferTask(domain)
+    {
+        if (domain == this.currentdomain)
+        {
+            this.ownerTransfer = false;
+        }
+        this.getAllNeoName(this.currentAddress);
+    }
+
 
     /**
      * 映射状态效果

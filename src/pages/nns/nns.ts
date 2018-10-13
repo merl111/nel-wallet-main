@@ -272,6 +272,21 @@ export default class NNS extends Vue
         // await this.awaitHeight("resolve");
     }
 
+    async setowner()
+    {
+        this.alert_resolve = false;
+        this.alert_resolver_state = 1;
+        let contract = this.alert_contract.hexToBytes().reverse();
+        let res = await tools.nnstool.setResolve(this.alert_domain, contract);
+        let state = new DomainStatus();
+        state.await_resolver = true;
+        state.domainname = this.alert_domain;
+        state.resolver = this.alert_contract.hexToBytes().reverse().toHexString();
+        DomainStatus.setStatus(state);
+        this.getDomainsByAddr();
+        // await this.awaitHeight("resolve");
+    }
+
     /**
      * 注册解析器
      */

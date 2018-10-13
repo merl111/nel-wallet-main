@@ -71,7 +71,7 @@
                   <div class="tranhistory-tips">{{$t('operation.tips')}}</div>
                 </div>
                 <div class="tranhistory-list" v-if="taskList.length != 0">
-                  <div class="th-onelist" v-for="item in taskList" :key="item.tasktype">
+                    <div class="th-onelist" v-for="item in taskList" > <!--:key="item.tasktype"-->
                     <div v-if="item.tasktype == 0">
                       <div class="th-type">
                         <div class="th-typename">{{$t('operation.transfer')}}</div>
@@ -319,6 +319,25 @@
                         <div class="th-other">
                           <div class="th-number">
                             <span>{{item.message.amount}} Gas</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="th-block-txid">
+                        <span class="th-txid" style="padding-right:10px"> 
+                        {{$t('operation.txid')}}<a class="green-text" :href="item.txidhref" target="_blank">{{item.txid}}</a>
+                        </span>
+                        <span class="red-text" v-if="item.state==0">{{$t('operation.waiting')}} {{item.pendingText}} </span>
+                        <span class="th-txid" v-if="item.state==1"></span>
+                        <span class="red-text" v-if="item.state==2">{{$t('operation.fail')}}</span>
+                      </div>
+                    </div>
+                    <div v-if="item.tasktype == 14">
+                      <div class="th-type">
+                        <div class="th-typename">{{$t('operation.editdomain')}}</div>
+                        <div class="th-other">
+                          <div class="th-number">
+                            <a class="green-text" :href="item.domainhref" target="_blank">{{item.message.domain}}</a>
+                            <span>{{$t('operation.domainTransfer')}} <a class="green-text" :href="item.addrhref" target="_blank">{{item.message.address}}</a></span>
                           </div>
                         </div>
                       </div>
