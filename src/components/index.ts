@@ -5,7 +5,7 @@ import Spinner from './Spinner.vue';
 import Toast from './toast.vue';
 import Valert from './Valert.vue';
 import Vlink from './VLink.vue';
-import Notify from './Notify.vue';
+import Notify from './notify.vue';
 
 export default {
     install(Vue)
